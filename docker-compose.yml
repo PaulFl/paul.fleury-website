@@ -1,0 +1,49 @@
+version: '3.1'
+
+services:
+  wordpress:
+    image: wordpress
+    restart: always
+    hostname: wordpress
+    ports:
+      - "127.0.0.1:8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpressdbuser
+      WORDPRESS_DB_PASSWORD: q8g7ejZDQ9WNWBVXEtpUyWjZ
+      WORDPRESS_DB_NAME: photogram_wordpress_db
+    volumes:
+      - ./wordpress:/var/www/html
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: photogram_wordpress_db
+      MYSQL_USER: wordpressdbuser
+      MYSQL_PASSWORD: q8g7ejZDQ9WNWBVXEtpUyWjZ
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db:/var/lib/mysql
+
+  swag:
+    image: linuxserver/swag
+    depends_on:
+      - wordpress
+    volumes:
+      - ./nginx_config:/config/nginx/site-confs
+    environment:
+      - EMAIL=paul.fleuryp@gmail.com
+      - URL=paul.fleury.io
+      - VALIDATION=http
+      - TZ=Europe/Paris
+      - PUID=500
+      - PGID=500
+    ports:
+      - "443:443"
+      - "80:80"
+
+volumes:
+  wordpress:
+  db:
